@@ -1,9 +1,10 @@
 rules:
   - github.com
   - github.githubassets.com
-  - customer-stories-feed.github.co
+  - customer-stories-feed.github.com
   - codeload.github.com
   - raw.githubusercontent.com
   - api.github.com
   - gist.github.com
   - gist.githubusercontent.com
+  
