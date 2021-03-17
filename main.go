@@ -1,18 +1,18 @@
 package main
 
 import (
-    "io"
-    "os"
-    "fmt"
-    "net"
-    "flag"
-    "time"
     "context"
-    "syscall"
-    "strings"
-    "os/signal"
+    "flag"
+    "fmt"
+    "gopkg.in/yaml.v2"
+    "io"
     "io/ioutil"
-    yaml "gopkg.in/yaml.v2"
+    "net"
+    "os"
+    "os/signal"
+    "strings"
+    "syscall"
+    "time"
 )
 
 var SNIPort = 443
@@ -25,8 +25,8 @@ type conf struct {
 
 var (
     cfgfile = flag.String("c", "config.yaml", "config file")
-    FileLogPath = flag.String("F", "", "log to file")
-    EnableDebug = flag.Bool("D", false, "Enable debug")
+    FileLogPath = flag.String("l", "", "log to file")
+    EnableDebug = flag.Bool("d", false, "Enable debug")
 )
 
 func main(){
@@ -40,17 +40,17 @@ func main(){
         serviceLogger(fmt.Sprintf("Yaml file unmarshal failed: %v", err), 31)
         os.Exit(0)
     }
-    if(len(cfg.ForwardRules) <= 0){
+    if len(cfg.ForwardRules) <= 0 {
         serviceLogger(fmt.Sprintf("No rules found in yaml!"), 31)
         os.Exit(0)
     }
     for _, rule := range cfg.ForwardRules {
         serviceLogger(fmt.Sprintf("Loaded rule: %v", rule), 32)
     }
-    startSNIproxy()
+    startSniProxy()
 }
 
-func startSNIproxy(){
+func startSniProxy(){
     _, cancel := context.WithCancel(context.Background())
     defer cancel()
     serviceLogger(fmt.Sprintf("Starting SNI Proxy on port %v", SNIPort), 0)
@@ -98,7 +98,7 @@ func serve(c net.Conn, raddr string) {
     }
 
     for _, rule := range cfg.ForwardRules {
-        if(strings.Contains(servername, rule)){
+        if strings.Contains(servername, rule) {
             serviceDebugger(fmt.Sprintf("Found %v, forwarding to %s:%d", servername, servername, ForwardPort), 32)
             forward(c, buf[:n], fmt.Sprintf("%s:%d", servername, ForwardPort), raddr)
         }
@@ -130,7 +130,7 @@ func getSNIServerName(buf []byte) string {
     //log.Printf("length: %d, got: %d", l, n)
 
     // handshake message type
-    if uint8(buf[5]) != typeClientHello {
+    if buf[5] != typeClientHello {
         serviceDebugger(fmt.Sprintf("Not client hello"), 31)
         return ""
     }
@@ -162,29 +162,29 @@ func forward(conn net.Conn, data []byte, dst string, raddr string) {
         return
     }
 
-    con_chk := make(chan int)
-    go ioReflector(backend, conn, false, con_chk, raddr, dst)
-    go ioReflector(conn, backend, true, con_chk, raddr, dst)
-    <-con_chk
+    conChk := make(chan int)
+    go ioReflector(backend, conn, false, conChk, raddr, dst)
+    go ioReflector(conn, backend, true, conChk, raddr, dst)
+    <-conChk
 }
 
-func ioReflector(dst io.WriteCloser, src io.Reader, isToClient bool, con_chk chan int, raddr string, dsts string) {
+func ioReflector(dst io.WriteCloser, src io.Reader, isToClient bool, conChk chan int, raddr string, dsts string) {
     // Reflect IO stream to another.
-    defer on_disconnect(dst, con_chk)
+    defer onDisconnect(dst, conChk)
     written, _ := io.Copy(dst, src)
-    if(isToClient){
+    if isToClient {
         serviceDebugger(fmt.Sprintf("[%v] -> [%v], Written %d bytes", dsts, raddr, written), 33)
     }else{
         serviceDebugger(fmt.Sprintf("[%v] -> [%v], Written %d bytes", raddr, dsts, written), 33)  
     }
     dst.Close()
-    con_chk <- 1
+    conChk <- 1
 }
 
-func on_disconnect(dst io.WriteCloser, con_chk chan int){
+func onDisconnect(dst io.WriteCloser, conChk chan int){
 	// On Close-> Force Disconnect another pair of connection.
-	dst.Close()
-	con_chk <- 1
+    dst.Close()
+	conChk <- 1
 }
 
 func (m *clientHelloMsg) unmarshal(data []byte) bool {
@@ -397,35 +397,35 @@ func (m *clientHelloMsg) unmarshal(data []byte) bool {
 func serviceLogger(log string, color int){
     log = strings.Replace(log, "\n", "", -1)
     log = strings.Join([]string{time.Now().Format("2006/01/02 15:04:05"), " ", log}, "")
-    if(color == 0){
+    if color == 0 {
         fmt.Printf("%s\n", log)
     }else{
         fmt.Printf("%c[1;0;%dm%s%c[0m\n", 0x1B, color, log, 0x1B)
     }
-    if(*FileLogPath != ""){
+    if *FileLogPath != "" {
         fd, _ := os.OpenFile(*FileLogPath, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0644)  
-        fd_time := time.Now().Format("2006/01/02-15:04:05");  
-        fd_content := strings.Join([]string{fd_time, "  ", log, "\n"}, "")  
-        buf := []byte(fd_content)  
-        fd.Write(buf)  
+        fdTime := time.Now().Format("2006/01/02-15:04:05")
+        fdContent := strings.Join([]string{fdTime, "  ", log, "\n"}, "")
+        buf := []byte(fdContent)
+        fd.Write(buf)
         fd.Close()
     }
 }
 
 func serviceDebugger(log string, color int){
-    if(*EnableDebug){
+    if *EnableDebug {
         log = strings.Replace(log, "\n", "", -1)
         log = strings.Join([]string{time.Now().Format("2006/01/02 15:04:05"), " [Debug] ", log}, "")
-        if(color == 0){
+        if color == 0 {
             fmt.Printf("%s\n", log)
         }else{
             fmt.Printf("%c[1;0;%dm%s%c[0m\n", 0x1B, color, log, 0x1B)
         }
-        if(*FileLogPath != ""){
+        if *FileLogPath != "" {
             fd, _ := os.OpenFile(*FileLogPath, os.O_RDWR | os.O_CREATE | os.O_APPEND, 0644)  
-            fd_time := time.Now().Format("2006/01/02-15:04:05");  
-            fd_content := strings.Join([]string{fd_time, "  ", log, "\n"}, "")  
-            buf := []byte(fd_content)  
+            fdTime := time.Now().Format("2006/01/02-15:04:05")
+            fdContent := strings.Join([]string{fdTime, "  ", log, "\n"}, "")
+            buf := []byte(fdContent)
             fd.Write(buf)  
             fd.Close()
         }

@@ -19,9 +19,9 @@ go build
 ## Usage:
 Usage of ./SNIProxyGo:  
 ```bash
--D          Enable debug  
--F <string> log to file  
--c <string> config file (default "config.yaml")  
+-d          Enable debug
+-l <string> log to file
+-c <string> config file (default "config.yaml")
 ```
 
 ## Credit
