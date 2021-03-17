@@ -1,0 +1,19 @@
+rules:
+  - github.com
+  - github.githubassets.com
+  - customer-stories-feed.github.com
+  #- codeload.github.com
+  #- raw.githubusercontent.com
+  #- api.github.com
+  - gist.github.com
+  - gist.githubusercontent.com
+  - avatars.githubusercontent.com
+  - avatars0.githubusercontent.com
+  - avatars1.githubusercontent.com
+  - avatars2.githubusercontent.com
+  - avatars3.githubusercontent.com
+  - avatars4.githubusercontent.com
+  - avatars5.githubusercontent.com
+  - avatars6.githubusercontent.com
+  - avatars7.githubusercontent.com
+  - avatars8.githubusercontent.com
