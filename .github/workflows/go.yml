@@ -28,7 +28,8 @@ jobs:
         go build -ldflags "-s -w" -o ./release/sniproxy-linux-amd64 ./
   
     - uses: actions/upload-artifact@v2
+      name: Upload Artifacts
       with:
-        name: Upload
+        name: sniproxy-linux-amd64
         path: release/sniproxy-linux-amd64
     
