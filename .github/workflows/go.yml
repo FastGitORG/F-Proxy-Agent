@@ -1,0 +1,34 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GOARCH: amd64
+      GOOS: linux
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+
+    - name: Build
+      run:
+        mkdir release
+        go get gopkg.in/yaml.v2
+        go build -ldflags "-s -w" -o ./release/sniproxy-linux-amd64 ./
+  
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Upload
+        path: release/sniproxy-linux-amd64
+    
