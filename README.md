@@ -1,30 +1,33 @@
 # SNIProxyGo
-一个简单的SNI代理实现
 
-## README in English: [Here](https://github.com/TachibanaSuzume/SNIProxyGo/blob/master/READMEEN.md "link"). 
+Simple SNI proxy written in go.  
+Source from <https://github.com/TachibanaSuzume/SNIProxyGo>.
 
-## 编译
-* go get gopkg.in/yaml.v2
-* go build
+## Compile
 
-## 使用方式:
-* 打开443端口的访问权限
-* 修改config.yaml中的规则
-* 运行
+```sh
+go get gopkg.in/yaml.v2
+go build
+```
 
-## 命令行附加参数
-*  -D 允许调试输出
-*  -F log.txt 记录输出到文件
-*  -c config.yaml 使用特定的config文件
+## Usage:
 
-## 感谢
-部分代码来自: https://github.com/fangdingjun/sniproxy  
-io反射代码来自: https://github.com/ziozzang/SimpleSNIProxy
+* Open port 443
+* Edit rules in config.yaml
+* Start
 
-## 协议
-本项目遵守GPL协议，无论软件以何种形式发布，都必须同时附上源代码。  
-如果需要商业使用，请联系我。
+## Usage:
+Usage of ./SNIProxyGo:  
+```bash
+-D          Enable debug  
+-F <string> log to file  
+-c <string> config file (default "config.yaml")  
+```
 
-## 商业化使用以及对接WHMCS
-欢迎联系TG: [TG用户](https://t.me/TachibanaSuzume "点我").   
-欢迎加入TG群: [TG群](https://t.me/V2rayIsNotGreat "点我"). 
+## Credit
+
+| Author | Link | License |
+| ------ | ---- | ------- |
+| TachibanaSuzume | <https://github.com/TachibanaSuzume/SNIProxyGo> | GPL-3.0 |
+| fangdingjun | <https://github.com/fangdingjun/sniproxy> | GPL-3.0 |
+| ziozzang | <https://github.com/ziozzang/SimpleSNIProxy>  | BSD-2-Clause |
