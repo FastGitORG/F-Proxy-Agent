@@ -18,3 +18,5 @@ rules:
   - avatars7.githubusercontent.com
   - avatars8.githubusercontent.com
   - github.global.ssl.fastly.net
+  - user-images.githubusercontent.com
+  - camo.githubusercontent.com
