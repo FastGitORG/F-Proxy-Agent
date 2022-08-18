@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"net"
@@ -13,6 +12,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"gopkg.in/yaml.v2"
 )
 
 var SNIPort = 443
@@ -41,7 +42,7 @@ func main() {
 		os.Exit(0)
 	}
 	if len(cfg.ForwardRules) <= 0 {
-		serviceLogger(fmt.Sprintf("No rules found in yaml!"), 31)
+		serviceLogger("No rules found in yaml!", 31)
 		os.Exit(0)
 	}
 	for _, rule := range cfg.ForwardRules {
@@ -93,7 +94,7 @@ func serve(c net.Conn, raddr string) {
 	servername := getSNIServerName(buf[:n])
 
 	if servername == "" {
-		serviceDebugger(fmt.Sprintf("No SNI server name found, ignore it"), 31)
+		serviceDebugger("No SNI server name found, ignore it", 31)
 		return
 	}
 
@@ -108,7 +109,7 @@ func serve(c net.Conn, raddr string) {
 func getSNIServerName(buf []byte) string {
 	n := len(buf)
 	if n < 5 {
-		serviceDebugger(fmt.Sprintf("Not tls handshake"), 31)
+		serviceDebugger("Not tls handshake", 31)
 		return ""
 	}
 
@@ -120,7 +121,7 @@ func getSNIServerName(buf []byte) string {
 
 	// tls major version
 	if buf[1] != 3 {
-		serviceDebugger(fmt.Sprintf("TLS version < 3 not supported"), 31)
+		serviceDebugger("TLS version < 3 not supported", 31)
 		return ""
 	}
 
@@ -131,7 +132,7 @@ func getSNIServerName(buf []byte) string {
 
 	// handshake message type
 	if buf[5] != typeClientHello {
-		serviceDebugger(fmt.Sprintf("Not client hello"), 31)
+		serviceDebugger("Not client hello", 31)
 		return ""
 	}
 
@@ -142,14 +143,15 @@ func getSNIServerName(buf []byte) string {
 	// client hello message not include tls header, 5 bytes
 	ret := msg.unmarshal(buf[5:n])
 	if !ret {
-		serviceDebugger(fmt.Sprintf("Parse hello message return false"), 31)
+		serviceDebugger("Parse hello message return false", 31)
 		return ""
 	}
 	return msg.serverName
 }
 
 func forward(conn net.Conn, data []byte, dst string, raddr string) {
-	backend, err := net.Dial("tcp", dst)
+	// TODO: FIX
+	backend, err := GetDialer(true).Dial("tcp", dst)
 	if err != nil {
 		serviceLogger(fmt.Sprintf("Couldn't connect to backend, %v", err), 31)
 		return
