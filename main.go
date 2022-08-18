@@ -28,6 +28,7 @@ var (
 	cfgfile     = flag.String("c", "config.yaml", "config file")
 	FileLogPath = flag.String("l", "", "log to file")
 	EnableDebug = flag.Bool("d", false, "Enable debug")
+	EnableSocks = flag.Bool("s", false, "Enable Socks5")
 )
 
 func main() {
@@ -115,7 +116,7 @@ func getSNIServerName(buf []byte) string {
 
 	// tls record type
 	if recordType(buf[0]) != recordTypeHandshake {
-		serviceDebugger(fmt.Sprintf("Not tls"), 31)
+		serviceDebugger("Not tls", 31)
 		return ""
 	}
 
@@ -150,8 +151,7 @@ func getSNIServerName(buf []byte) string {
 }
 
 func forward(conn net.Conn, data []byte, dst string, raddr string) {
-	// TODO: FIX
-	backend, err := GetDialer(true).Dial("tcp", dst)
+	backend, err := GetDialer(*EnableSocks).Dial("tcp", dst)
 	if err != nil {
 		serviceLogger(fmt.Sprintf("Couldn't connect to backend, %v", err), 31)
 		return
