@@ -9,7 +9,7 @@ import (
 var proxyDialer proxy.Dialer = nil
 
 func GetDialer(isSocks5 bool) proxy.Dialer {
-	if isSocks5 {
+	if !isSocks5 {
 		return &net.Dialer{}
 	}
 	if proxyDialer != nil {
@@ -19,7 +19,7 @@ func GetDialer(isSocks5 bool) proxy.Dialer {
 	var err error
 	proxyDialer, err = proxy.SOCKS5("tcp", "127.0.0.1:4000", nil, proxy.Direct)
 	if err != nil {
-		return proxyDialer
+		panic(err)
 	}
-	panic(err)
+	return proxyDialer
 }
