@@ -24,12 +24,12 @@ jobs:
     - name: Build
       run: |
         mkdir release
-        go get gopkg.in/yaml.v2
-        go build -ldflags "-s -w" -o ./release/sniproxy-linux-amd64 ./
+        go mod download
+        go build -ldflags "-s -w" -o ./release/f-proxy-agent-linux-amd64 fastgit.org/f-proxy-agent
   
     - uses: actions/upload-artifact@v2
       name: Upload Artifacts
       with:
-        name: sniproxy-linux-amd64
-        path: release/sniproxy-linux-amd64
+        name: f-proxy-agent
+        path: release/f-proxy-agent
     
