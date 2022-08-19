@@ -37,7 +37,7 @@ func main() {
 		serviceLogger(fmt.Sprintf("Yaml file unmarshal failed: %v", err), 31)
 		os.Exit(1)
 	}
-	if len(cfg.ForwardRules) <= 0 {
+	if len(cfg.ForwardRules) <= 0 && !cfg.AllowAllHosts {
 		serviceLogger("No rules found in yaml!", 31)
 		os.Exit(1)
 	}
@@ -46,6 +46,7 @@ func main() {
 	}
 	serviceLogger(fmt.Sprintf("Debug: %v", ValEnableDebug), 32)
 	serviceLogger(fmt.Sprintf("Socks: %v", cfg.EnableSocks), 32)
+	serviceLogger(fmt.Sprintf("All Hosts: %v", cfg.AllowAllHosts), 32)
 
 	startSniProxy()
 }
@@ -95,6 +96,12 @@ func serve(c net.Conn, raddr string) {
 
 	if servername == "" {
 		serviceDebugger("No SNI server name found, ignore it", 31)
+		return
+	}
+
+	if cfg.AllowAllHosts {
+		serviceDebugger(fmt.Sprintf("Found %v, forwarding to %s:%d", servername, servername, ForwardPort), 32)
+		forward(c, buf[:n], fmt.Sprintf("%s:%d", servername, ForwardPort), raddr)
 		return
 	}
 
