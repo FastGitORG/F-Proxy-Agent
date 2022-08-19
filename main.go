@@ -49,8 +49,8 @@ func main() {
 	for _, rule := range cfg.ForwardRules {
 		serviceLogger(fmt.Sprintf("Loaded rule: %v", rule), 32)
 	}
-	serviceLogger(fmt.Sprintf("Debug: %v", EnableDebug), 32)
-	serviceLogger(fmt.Sprintf("Socks: %v", EnableSocks), 32)
+	serviceLogger(fmt.Sprintf("Debug: %v", *EnableDebug), 32)
+	serviceLogger(fmt.Sprintf("Socks: %v", *EnableSocks), 32)
 
 	startSniProxy()
 }
