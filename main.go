@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"os/signal"
@@ -20,30 +19,32 @@ var ForwardPort = 443
 var cfg configModel
 
 var (
-	cfgfile     = flag.String("c", "config.yaml", "config file")
-	FileLogPath = flag.String("l", "", "log to file")
-	EnableDebug = flag.Bool("d", false, "Enable debug")
+	cfgfile        = flag.String("c", "config.yaml", "config file")
+	FileLogPath    = flag.String("l", "", "log to file")
+	EnableDebug    = flag.Bool("d", false, "Enable debug")
+	ValEnableDebug = false
 )
 
 func main() {
 	flag.Parse()
-	data, err := ioutil.ReadFile(*cfgfile)
+	ValEnableDebug = *EnableDebug
+	data, err := os.ReadFile(*cfgfile)
 	if err != nil {
 		serviceLogger(fmt.Sprintf("Yaml file read failed: %v", err), 31)
-		os.Exit(0)
+		os.Exit(1)
 	}
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		serviceLogger(fmt.Sprintf("Yaml file unmarshal failed: %v", err), 31)
-		os.Exit(0)
+		os.Exit(1)
 	}
 	if len(cfg.ForwardRules) <= 0 {
 		serviceLogger("No rules found in yaml!", 31)
-		os.Exit(0)
+		os.Exit(1)
 	}
 	for _, rule := range cfg.ForwardRules {
 		serviceLogger(fmt.Sprintf("Loaded rule: %v", rule), 32)
 	}
-	serviceLogger(fmt.Sprintf("Debug: %v", *EnableDebug), 32)
+	serviceLogger(fmt.Sprintf("Debug: %v", ValEnableDebug), 32)
 	serviceLogger(fmt.Sprintf("Socks: %v", cfg.EnableSocks), 32)
 
 	startSniProxy()
@@ -413,7 +414,7 @@ func serviceLogger(log string, color int) {
 }
 
 func serviceDebugger(log string, color int) {
-	if *EnableDebug {
+	if ValEnableDebug {
 		log = strings.Replace(log, "\n", "", -1)
 		log = strings.Join([]string{time.Now().Format("2006/01/02 15:04:05"), " [Debug] ", log}, "")
 		if color == 0 {
