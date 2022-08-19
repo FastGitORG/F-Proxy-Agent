@@ -31,5 +31,5 @@ jobs:
       name: Upload Artifacts
       with:
         name: f-proxy-agent
-        path: release/f-proxy-agent
+        path: release/f-proxy-agent-linux-amd64
     
