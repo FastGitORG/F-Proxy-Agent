@@ -1,16 +1,7 @@
-# SNIProxyGo
+# F-Proxy-Agent
 
 Simple SNI proxy written in go.  
 Source from <https://github.com/TachibanaSuzume/SNIProxyGo>.
-
-## Compile
-
-```sh
-go get gopkg.in/yaml.v2
-go build
-```
-
-## Usage:
 
 * Open port 443
 * Edit rules in config.yaml
