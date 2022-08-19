@@ -17,7 +17,7 @@ func GetDialer(isSocks5 bool) proxy.Dialer {
 
 	}
 	var err error
-	proxyDialer, err = proxy.SOCKS5("tcp", "127.0.0.1:4000", nil, proxy.Direct)
+	proxyDialer, err = proxy.SOCKS5("tcp", "127.0.0.1:40000", nil, proxy.Direct)
 	if err != nil {
 		panic(err)
 	}
