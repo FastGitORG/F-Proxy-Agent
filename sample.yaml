@@ -1,2 +1,6 @@
+listen_addr: 127.0.0.1:114514
+enable_socks5: true
+socks_addr: 127.0.0.1:40000
+
 rules:
   - ifconfig.me

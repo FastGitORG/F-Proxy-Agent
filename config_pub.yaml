@@ -1,3 +1,7 @@
+listen_addr: 127.0.0.1:114514
+enable_socks5: false
+socks_addr: 127.0.0.1:40000
+
 rules:
   - github.com
   - github.githubassets.com

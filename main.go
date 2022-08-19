@@ -16,19 +16,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var SNIPort = 443
 var ForwardPort = 443
-var cfg conf
-
-type conf struct {
-	ForwardRules []string `yaml:"rules"`
-}
+var cfg configModel
 
 var (
 	cfgfile     = flag.String("c", "config.yaml", "config file")
 	FileLogPath = flag.String("l", "", "log to file")
 	EnableDebug = flag.Bool("d", false, "Enable debug")
-	EnableSocks = flag.Bool("s", false, "Enable Socks5")
 )
 
 func main() {
@@ -50,7 +44,7 @@ func main() {
 		serviceLogger(fmt.Sprintf("Loaded rule: %v", rule), 32)
 	}
 	serviceLogger(fmt.Sprintf("Debug: %v", *EnableDebug), 32)
-	serviceLogger(fmt.Sprintf("Socks: %v", *EnableSocks), 32)
+	serviceLogger(fmt.Sprintf("Socks: %v", cfg.EnableSocks), 32)
 
 	startSniProxy()
 }
@@ -58,12 +52,13 @@ func main() {
 func startSniProxy() {
 	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	serviceLogger(fmt.Sprintf("Starting SNI Proxy on port %v", SNIPort), 0)
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", SNIPort))
+	listener, err := net.Listen("tcp", cfg.ListenAddr)
 	if err != nil {
-		serviceLogger(fmt.Sprintf("SNI Proxy Init failed: %v", err), 31)
-		os.Exit(0)
+		serviceLogger(fmt.Sprintf("Listened failed: %v", err), 31)
+		os.Exit(1)
 	}
+	serviceLogger(fmt.Sprintf("Start listening: %v", listener.Addr()), 0)
+
 	go func(listener net.Listener) {
 		defer listener.Close()
 		for {
@@ -154,7 +149,7 @@ func getSNIServerName(buf []byte) string {
 }
 
 func forward(conn net.Conn, data []byte, dst string, raddr string) {
-	backend, err := GetDialer(*EnableSocks).Dial("tcp", dst)
+	backend, err := GetDialer(cfg.EnableSocks).Dial("tcp", dst)
 	if err != nil {
 		serviceLogger(fmt.Sprintf("Couldn't connect to backend, %v", err), 31)
 		return
